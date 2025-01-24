@@ -1,12 +1,12 @@
 <script setup>
 import axios from "axios";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const showModal = ref(false); // Controls modal visibility
 const name = ref(""); // Bind name input
 const email = ref(""); // Bind email input
 const password = ref(""); // Bind password input
-const response = ref(null); // Holds the response data
+const users = ref([]); // Holds user data from the backend
 
 // Function to show the modal
 const ShowModal = () => {
@@ -18,15 +18,25 @@ const closeModal = () => {
     showModal.value = false;
 };
 
+// Fetch existing users on mount
+onMounted(async () => {
+    try {
+        const res = await axios.get("/users/index");
+        users.value = res.data; // Assign response data
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+});
+
 // Function to handle form submission
 const submitForm = async () => {
     try {
         const res = await axios.post("/submit-form", {
             name: name.value,
             email: email.value,
-            password: "password",
+            password: password.value,
         });
-        response.value = res.data; // Assign response data
+        users.value.push(res.data); // Update users list
         closeModal(); // Close the modal after submission
     } catch (error) {
         console.error("Error submitting form:", error);
@@ -39,10 +49,15 @@ const submitForm = async () => {
         <h2>HOME</h2>
         <router-link to="/test">Take me to Test page</router-link>
         <button @click="ShowModal">Show Modal</button>
-        <div v-if="response">
-            <p>Name: {{ response.name }}</p>
-            <p>Email: {{ response.email }}</p>
-            <p>Email: {{ response.password }}</p>
+
+        <!-- Users List -->
+        <div v-if="users.length">
+            <h3>Users List</h3>
+            <ul>
+                <li v-for="(user, index) in users" :key="index">
+                    Name: {{ user.name }}, Email: {{ user.email }}
+                </li>
+            </ul>
         </div>
 
         <!-- Modal -->
@@ -58,6 +73,7 @@ const submitForm = async () => {
                         name="name"
                         required
                     />
+
                     <label for="email">Email:</label>
                     <input
                         v-model="email"
@@ -66,6 +82,7 @@ const submitForm = async () => {
                         name="email"
                         required
                     />
+
                     <label for="password">Password:</label>
                     <input
                         v-model="password"
@@ -74,6 +91,7 @@ const submitForm = async () => {
                         name="password"
                         required
                     />
+
                     <button type="submit">Submit</button>
                 </form>
                 <button @click="closeModal">Close</button>

@@ -1,33 +1,37 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Models\User;
 
-// Route::get('/{vue_capture?}', function () {
-//     return view('welcome');
-// })->where('vue_capture', '[\/\w\.-]*');
-
+// Welcome route
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Get all users
+Route::get('/users/index', function () {
+    $users = User::select('name', 'email')->get();
+    return response()->json($users);
+});
+
+// Submit form route
 Route::post('/submit-form', function (Request $request) {
-    $request->validate([
-        'name' => 'required|string',
-        'email' => 'required|email',
-        'password' => 'required|string',
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:8',
     ]);
 
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => $request->password,
+    $user = User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => Hash::make($validated['password']),
     ]);
 
     return response()->json([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => $request->password,
+        'name' => $user->name,
+        'email' => $user->email,
     ]);
 });

@@ -5,6 +5,7 @@ import { ref } from "vue";
 const showModal = ref(false); // Controls modal visibility
 const name = ref(""); // Bind name input
 const email = ref(""); // Bind email input
+const password = ref(""); // Bind password input
 const response = ref(null); // Holds the response data
 
 // Function to show the modal

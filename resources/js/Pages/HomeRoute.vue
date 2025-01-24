@@ -23,6 +23,7 @@ const submitForm = async () => {
         const res = await axios.post("/submit-form", {
             name: name.value,
             email: email.value,
+            password: "password",
         });
         response.value = res.data; // Assign response data
         closeModal(); // Close the modal after submission
@@ -40,6 +41,7 @@ const submitForm = async () => {
         <div v-if="response">
             <p>Name: {{ response.name }}</p>
             <p>Email: {{ response.email }}</p>
+            <p>Email: {{ response.password }}</p>
         </div>
 
         <!-- Modal -->
@@ -61,6 +63,14 @@ const submitForm = async () => {
                         type="email"
                         id="email"
                         name="email"
+                        required
+                    />
+                    <label for="password">Password:</label>
+                    <input
+                        v-model="password"
+                        type="password"
+                        id="password"
+                        name="password"
                         required
                     />
                     <button type="submit">Submit</button>
